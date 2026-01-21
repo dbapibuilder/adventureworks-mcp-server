@@ -1,0 +1,808 @@
+{  
+  "$schema": "https://github.com/Azure/data-api-builder/releases/download/latest/dab.draft.schema.json",  
+  "data-source": {  
+    "database-type": "mssql",  
+    "connection-string": "@env('MSSQL')",  
+    "options": {  
+      "set-session-context": false  
+    }  
+  },  
+  "runtime": {  
+    "rest": {  
+      "enabled": true,  
+      "request-body-strict": false,  
+      "path": "/api"  
+    },  
+    "graphql": {  
+      "enabled": true,  
+      "path": "/graphql",  
+      "allow-introspection": true  
+    },
+     "mcp": {  
+      "enabled": true,  
+      "path": "/mcp"  
+    },   
+    "host": {  
+      "cors": {  
+        "origins": [],  
+        "allow-credentials": false  
+      },  
+      "authentication": {  
+        "provider": "StaticWebApps"  
+      },  
+      "mode": "development"  
+    }  
+  },  
+  "entities": {  
+    "SalesOrderDetail": {  
+      "description": "Individual line items within a sales order, containing product details, quantities, and pricing information",  
+      "source": "[SalesLT].[SalesOrderDetail]",  
+      "fields": [  
+        {  
+          "name": "SalesOrderID",  
+          "description": "Foreign key reference to the sales order header",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "SalesOrderDetailID",  
+          "description": "Unique identifier for the sales order detail line item",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "OrderQty",  
+          "description": "Quantity of the product ordered"  
+        },  
+        {  
+          "name": "ProductID",  
+          "description": "Foreign key reference to the product catalog"  
+        },  
+        {  
+          "name": "UnitPrice",  
+          "description": "Price per unit at the time of order"  
+        },  
+        {  
+          "name": "UnitPriceDiscount",  
+          "description": "Discount amount applied to the unit price"  
+        },  
+        {  
+          "name": "LineTotal",  
+          "description": "Total price for this line item (OrderQty * UnitPrice * (1 - UnitPriceDiscount))"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "Product": {  
+          "cardinality": "one",  
+          "target.entity": "Product",  
+          "source.fields": [  
+            "ProductID"  
+          ],  
+          "target.fields": [  
+            "ProductID"  
+          ]  
+        },  
+        "SalesOrderHeader": {  
+          "cardinality": "one",  
+          "target.entity": "SalesOrderHeader",  
+          "source.fields": [  
+            "SalesOrderID"  
+          ],  
+          "target.fields": [  
+            "SalesOrderID"  
+          ]  
+        }  
+      }  
+    },  
+    "SalesOrderHeader": {  
+      "description": "Main sales order record containing customer information, order dates, and shipping details",  
+      "source": "[SalesLT].[SalesOrderHeader]",  
+      "fields": [  
+        {  
+          "name": "SalesOrderID",  
+          "description": "Unique identifier for the sales order",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "OrderDate",  
+          "description": "Date when the order was placed"  
+        },  
+        {  
+          "name": "DueDate",  
+          "description": "Date when the order is due to be delivered"  
+        },  
+        {  
+          "name": "ShipDate",  
+          "description": "Date when the order was shipped"  
+        },  
+        {  
+          "name": "Status",  
+          "description": "Current status of the order (1=In process, 2=Approved, 3=Backordered, 4=Rejected, 5=Shipped, 6=Cancelled)"  
+        },  
+        {  
+          "name": "OnlineOrderFlag",  
+          "description": "Indicates if this was an online order (1) or sales person order (0)"  
+        },  
+        {  
+          "name": "SalesOrderNumber",  
+          "description": "Unique sales order number in format SOxxxxx"  
+        },  
+        {  
+          "name": "PurchaseOrderNumber",  
+          "description": "Customer's purchase order number"  
+        },  
+        {  
+          "name": "AccountNumber",  
+          "description": "Customer's account number"  
+        },  
+        {  
+          "name": "CustomerID",  
+          "description": "Foreign key reference to the customer"  
+        },  
+        {  
+          "name": "BillToAddressID",  
+          "description": "Foreign key reference to the billing address"  
+        },  
+        {  
+          "name": "ShipToAddressID",  
+          "description": "Foreign key reference to the shipping address"  
+        },  
+        {  
+          "name": "ShipMethod",  
+          "description": "Shipping method used for the order"  
+        },  
+        {  
+          "name": "SubTotal",  
+          "description": "Subtotal of the order before tax and freight"  
+        },  
+        {  
+          "name": "TaxAmt",  
+          "description": "Tax amount for the order"  
+        },  
+        {  
+          "name": "Freight",  
+          "description": "Shipping cost for the order"  
+        },  
+        {  
+          "name": "TotalDue",  
+          "description": "Total amount due for the order (SubTotal + TaxAmt + Freight)"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "Customer": {  
+          "cardinality": "one",  
+          "target.entity": "Customer",  
+          "source.fields": [  
+            "CustomerID"  
+          ],  
+          "target.fields": [  
+            "CustomerID"  
+          ]  
+        },  
+        "Address": {  
+          "cardinality": "one",  
+          "target.entity": "Address",  
+          "source.fields": [  
+            "BillToAddressID"  
+          ],  
+          "target.fields": [  
+            "AddressID"  
+          ]  
+        },  
+        "Address2": {  
+          "cardinality": "one",  
+          "target.entity": "Address",  
+          "source.fields": [  
+            "ShipToAddressID"  
+          ],  
+          "target.fields": [  
+            "AddressID"  
+          ]  
+        },  
+        "SalesOrderDetail": {  
+          "cardinality": "many",  
+          "target.entity": "SalesOrderDetail",  
+          "source.fields": [  
+            "SalesOrderID"  
+          ],  
+          "target.fields": [  
+            "SalesOrderID"  
+          ]  
+        }  
+      }  
+    },  
+    "Customer": {  
+      "description": "Customer information including company details and store references",  
+      "source": "[SalesLT].[Customer]",  
+      "fields": [  
+        {  
+          "name": "CustomerID",  
+          "description": "Unique identifier for the customer",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "NameStyle",  
+          "description": "Name style (0=Western style, 1=Eastern style)"  
+        },  
+        {  
+          "name": "Title",  
+          "description": "Customer's title (Mr., Mrs., Ms., etc.)"  
+        },  
+        {  
+          "name": "FirstName",  
+          "description": "Customer's first name"  
+        },  
+        {  
+          "name": "MiddleName",  
+          "description": "Customer's middle name"  
+        },  
+        {  
+          "name": "LastName",  
+          "description": "Customer's last name"  
+        },  
+        {  
+          "name": "Suffix",  
+          "description": "Customer's suffix (Jr., Sr., etc.)"  
+        },  
+        {  
+          "name": "CompanyName",  
+          "description": "Customer's company name"  
+        },  
+        {  
+          "name": "SalesPerson",  
+          "description": "Sales person assigned to the customer"  
+        },  
+        {  
+          "name": "EmailAddress",  
+          "description": "Customer's email address"  
+        },  
+        {  
+          "name": "Phone",  
+          "description": "Customer's phone number"  
+        },  
+        {  
+          "name": "PasswordHash",  
+          "description": "Hashed password for customer login"  
+        },  
+        {  
+          "name": "PasswordSalt",  
+          "description": "Salt used for password hashing"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "CustomerAddress": {  
+          "cardinality": "many",  
+          "target.entity": "CustomerAddress",  
+          "source.fields": [  
+            "CustomerID"  
+          ],  
+          "target.fields": [  
+            "CustomerID"  
+          ]  
+        },  
+        "SalesOrderHeader": {  
+          "cardinality": "many",  
+          "target.entity": "SalesOrderHeader",  
+          "source.fields": [  
+            "CustomerID"  
+          ],  
+          "target.fields": [  
+            "CustomerID"  
+          ]  
+        }  
+      }  
+    },  
+    "ProductModel": {  
+      "description": "Product model definitions that group related products",  
+      "source": "[SalesLT].[ProductModel]",  
+      "fields": [  
+        {  
+          "name": "ProductModelID",  
+          "description": "Unique identifier for the product model",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "Name",  
+          "description": "Name of the product model"  
+        },  
+        {  
+          "name": "CatalogDescription",  
+          "description": "Detailed description of the product model in XML format"  
+        },  
+        {  
+          "name": "Instructions",  
+          "description": "Manufacturing instructions for the product model in XML format"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "Product": {  
+          "cardinality": "many",  
+          "target.entity": "Product",  
+          "source.fields": [  
+            "ProductModelID"  
+          ],  
+          "target.fields": [  
+            "ProductModelID"  
+          ]  
+        },  
+        "ProductModelProductDescription": {  
+          "cardinality": "many",  
+          "target.entity": "ProductModelProductDescription",  
+          "source.fields": [  
+            "ProductModelID"  
+          ],  
+          "target.fields": [  
+            "ProductModelID"  
+          ]  
+        }  
+      }  
+    },  
+    "ProductDescription": {  
+      "description": "Product descriptions in different languages for internationalization",  
+      "source": "[SalesLT].[ProductDescription]",  
+      "fields": [  
+        {  
+          "name": "ProductDescriptionID",  
+          "description": "Unique identifier for the product description",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "Description",  
+          "description": "Product description text"  
+        },  
+        {  
+          "name": "rowguid",  
+          "description": "ROWGUIDCOL number uniquely identifying the record"  
+        },  
+        {  
+          "name": "ModifiedDate",  
+          "description": "Date and time the record was last modified"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "ProductModelProductDescription": {  
+          "cardinality": "many",  
+          "target.entity": "ProductModelProductDescription",  
+          "source.fields": [  
+            "ProductDescriptionID"  
+          ],  
+          "target.fields": [  
+            "ProductDescriptionID"  
+          ]  
+        }  
+      }  
+    },  
+    "Product": {  
+      "description": "Product catalog information including pricing, color, and size details",  
+      "source": "[SalesLT].[Product]",  
+      "fields": [  
+        {  
+          "name": "ProductID",  
+          "description": "Unique identifier for the product",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "Name",  
+          "description": "Name of the product"  
+        },  
+        {  
+          "name": "ProductNumber",  
+          "description": "Unique product identification number"  
+        },  
+        {  
+          "name": "Color",  
+          "description": "Product color"  
+        },  
+        {  
+          "name": "StandardCost",  
+          "description": "Standard cost of the product"  
+        },  
+        {  
+          "name": "ListPrice",  
+          "description": "Selling price of the product"  
+        },  
+        {  
+          "name": "Size",  
+          "description": "Product size"  
+        },  
+        {  
+          "name": "Weight",  
+          "description": "Product weight"  
+        },  
+        {  
+          "name": "ProductCategoryID",  
+          "description": "Foreign key reference to product category"  
+        },  
+        {  
+          "name": "ProductModelID",  
+          "description": "Foreign key reference to product model"  
+        },  
+        {  
+          "name": "SellStartDate",  
+          "description": "Date the product was available for sale"  
+        },  
+        {  
+          "name": "SellEndDate",  
+          "description": "Date the product was no longer available for sale"  
+        },  
+        {  
+          "name": "DiscontinuedDate",  
+          "description": "Date the product was discontinued"  
+        },  
+        {  
+          "name": "ThumbNailPhoto",  
+          "description": "Small thumbnail image of the product"  
+        },  
+        {  
+          "name": "ThumbnailPhotoFileName",  
+          "description": "Filename of the thumbnail photo"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "ProductModel": {  
+          "cardinality": "one",  
+          "target.entity": "ProductModel",  
+          "source.fields": [  
+            "ProductModelID"  
+          ],  
+          "target.fields": [  
+            "ProductModelID"  
+          ]  
+        },  
+        "ProductCategory": {  
+          "cardinality": "one",  
+          "target.entity": "ProductCategory",  
+          "source.fields": [  
+            "ProductCategoryID"  
+          ],  
+          "target.fields": [  
+            "ProductCategoryID"  
+          ]  
+        },  
+        "SalesOrderDetail": {  
+          "cardinality": "many",  
+          "target.entity": "SalesOrderDetail",  
+          "source.fields": [  
+            "ProductID"  
+          ],  
+          "target.fields": [  
+            "ProductID"  
+          ]  
+        }  
+      }  
+    },  
+    "ProductModelProductDescription": {  
+      "description": "Mapping table linking product models to descriptions in different cultures",  
+      "source": "[SalesLT].[ProductModelProductDescription]",  
+      "fields": [  
+        {  
+          "name": "ProductModelID",  
+          "description": "Foreign key reference to product model",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "ProductDescriptionID",  
+          "description": "Foreign key reference to product description",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "Culture",  
+          "description": "Culture identifier (e.g., 'en' for English)",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "rowguid",  
+          "description": "ROWGUIDCOL number uniquely identifying the record"  
+        },  
+        {  
+          "name": "ModifiedDate",  
+          "description": "Date and time the record was last modified"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "ProductModel": {  
+          "cardinality": "one",  
+          "target.entity": "ProductModel",  
+          "source.fields": [  
+            "ProductModelID"  
+          ],  
+          "target.fields": [  
+            "ProductModelID"  
+          ]  
+        },  
+        "ProductDescription": {  
+          "cardinality": "one",  
+          "target.entity": "ProductDescription",  
+          "source.fields": [  
+            "ProductDescriptionID"  
+          ],  
+          "target.fields": [  
+            "ProductDescriptionID"  
+          ]  
+        }  
+      }  
+    },  
+    "ProductCategory": {  
+      "description": "Product categories organized in a hierarchical structure",  
+      "source": "[SalesLT].[ProductCategory]",  
+      "fields": [  
+        {  
+          "name": "ProductCategoryID",  
+          "description": "Unique identifier for the product category",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "ParentProductCategoryID",  
+          "description": "Foreign key reference to parent category (null for top-level categories)"  
+        },  
+        {  
+          "name": "Name",  
+          "description": "Category name"  
+        },  
+        {  
+          "name": "rowguid",  
+          "description": "ROWGUIDCOL number uniquely identifying the record"  
+        },  
+        {  
+          "name": "ModifiedDate",  
+          "description": "Date and time the record was last modified"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "Product": {  
+          "cardinality": "many",  
+          "target.entity": "Product",  
+          "source.fields": [  
+            "ProductCategoryID"  
+          ],  
+          "target.fields": [  
+            "ProductCategoryID"  
+          ]  
+        },  
+        "ProductCategory":{  
+          "cardinality": "one",  
+          "target.entity": "ProductCategory",  
+          "source.fields": [  
+            "ParentProductCategoryID"  
+          ],  
+          "target.fields": [  
+            "ProductCategoryID"  
+          ]  
+        },  
+        "ProductCategory2": {  
+          "cardinality": "many",  
+          "target.entity": "ProductCategory",  
+          "source.fields": [  
+            "ProductCategoryID"  
+          ],  
+          "target.fields": [  
+            "ParentProductCategoryID"  
+          ]  
+        }  
+      }  
+    },  
+    "Address": {  
+      "description": "Address information for customers and shipping locations",  
+      "source": "[SalesLT].[Address]",  
+      "fields": [  
+        {  
+          "name": "AddressID",  
+          "description": "Unique identifier for the address",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "AddressLine1",  
+          "description": "First line of the street address"  
+        },  
+        {  
+          "name": "AddressLine2",  
+          "description": "Second line of the street address (optional)"  
+        },  
+        {  
+          "name": "City",  
+          "description": "City name"  
+        },  
+        {  
+          "name": "StateProvince",  
+          "description": "State or province name"  
+        },  
+        {  
+          "name": "CountryRegion",  
+          "description": "Country or region name"  
+        },  
+        {  
+          "name": "PostalCode",  
+          "description": "Postal code or ZIP code"  
+        },  
+        {  
+          "name": "rowguid",  
+          "description": "ROWGUIDCOL number uniquely identifying the record"  
+        },  
+        {  
+          "name": "ModifiedDate",  
+          "description": "Date and time the record was last modified"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "CustomerAddress": {  
+          "cardinality": "many",  
+          "target.entity": "CustomerAddress",  
+          "source.fields": [  
+            "AddressID"  
+          ],  
+          "target.fields": [  
+            "AddressID"  
+          ]  
+        },  
+        "SalesOrderHeader": {  
+          "cardinality": "many",  
+          "target.entity": "SalesOrderHeader",  
+          "source.fields": [  
+            "AddressID"  
+          ],  
+          "target.fields": [  
+            "BillToAddressID"  
+          ]  
+        },  
+        "SalesOrderHeader2": {  
+          "cardinality": "many",  
+          "target.entity": "SalesOrderHeader",  
+          "source.fields": [  
+            "AddressID"  
+          ],  
+          "target.fields": [  
+            "ShipToAddressID"  
+          ]  
+        }  
+      }  
+    },  
+    "CustomerAddress": {  
+      "description": "Mapping table linking customers to their addresses",  
+      "source": "[SalesLT].[CustomerAddress]",  
+      "fields": [  
+        {  
+          "name": "CustomerID",  
+          "description": "Foreign key reference to the customer",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "AddressID",  
+          "description": "Foreign key reference to the address",  
+          "primary-key": true  
+        },  
+        {  
+          "name": "AddressType",  
+          "description": "Type of address (e.g., 'Main Office', 'Shipping', 'Billing')"  
+        },  
+        {  
+          "name": "rowguid",  
+          "description": "ROWGUIDCOL number uniquely identifying the record"  
+        },  
+        {  
+          "name": "ModifiedDate",  
+          "description": "Date and time the record was last modified"  
+        }  
+      ],  
+      "permissions": [  
+        {  
+          "role": "anonymous",  
+          "actions": [  
+            {  
+              "action": "read"  
+            }  
+          ]  
+        }  
+      ],  
+      "relationships": {  
+        "Customer": {  
+          "cardinality": "one",  
+          "target.entity": "Customer",  
+          "source.fields": [  
+            "CustomerID"  
+          ],  
+          "target.fields": [  
+            "CustomerID"  
+          ]  
+        },  
+        "Address": {  
+          "cardinality": "one",  
+          "target.entity": "Address",  
+          "source.fields": [  
+            "AddressID"  
+          ],  
+          "target.fields": [  
+            "AddressID"  
+          ]  
+        }  
+      }  
+    }  
+  }  
+}
