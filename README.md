@@ -40,10 +40,9 @@ Each tool supports filtering, sorting, and relationship traversal through natura
 
 ## 💬 Example Queries
 
-- "Show me the top 5 most expensive products"
-- "List recent sales orders with customer names"
-- "What products are in the 'Mountain Bikes' category?"
-- "Show all customers from Seattle"
+- "Show me the top 10 products by total sales revenue, including product name, total quantity   sold, and total revenue amount."
+- "Analyze shipping patterns by showing the top 5 cities where orders are shipped, including the number of orders and total freight charges for each city."
+
 
 ## 🚀 Run Your Own
 
